@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DKH Finance | Premium Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Google Fonts (Plus Jakarta Sans) -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f3f4f6; }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        /* Custom Scrollbar */
+        ul::-webkit-scrollbar, div::-webkit-scrollbar { width: 4px; }
+        ul::-webkit-scrollbar-thumb, div::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 lg:p-8 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] relative">
+    
+    <!-- Background aksen blur -->
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-500/20 rounded-full blur-3xl -z-10"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl -z-10"></div>
+    <div class="absolute top-[40%] right-[-5%] w-72 h-72 bg-violet-500/10 rounded-full blur-3xl -z-10"></div>
+
+    <div class="max-w-lg w-full bg-white/90 backdrop-blur-xl rounded-[2rem] shadow-2xl overflow-hidden border border-white/50 relative z-10">
+        
+        <!-- Header -->
+        <div class="px-6 sm:px-8 pt-8 pb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">DKH<span class="text-blue-600">Finance.</span></h1>
+                <p class="text-slate-500 text-sm font-medium mt-0.5">Asset & Revenue Manager</p>
+            </div>
+            <div class="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+        </div>
+
+        <!-- Segmented Tab Navigation (5 Menu) -->
+        <div class="px-4 sm:px-8 pb-4 overflow-x-auto">
+            <div class="bg-slate-100 p-1.5 rounded-2xl flex text-xs sm:text-sm font-semibold text-slate-500 relative shadow-inner min-w-[360px]">
+                <button id="btnTabHarian" onclick="switchTab('harian')" class="flex-1 py-2.5 rounded-xl transition-all duration-300 relative z-10 text-blue-700 bg-white shadow-sm">Rekap</button>
+                <button id="btnTabInput" onclick="switchTab('input')" class="flex-1 py-2.5 rounded-xl transition-all duration-300 relative z-10 hover:text-slate-700">Saldo</button>
+                <button id="btnTabAkun" onclick="switchTab('akun')" class="flex-1 py-2.5 rounded-xl transition-all duration-300 relative z-10 hover:text-slate-700">Akun</button>
+                <button id="btnTabDashboard" onclick="switchTab('dashboard')" class="flex-1 py-2.5 rounded-xl transition-all duration-300 relative z-10 hover:text-slate-700">Dompet</button>
+                <button id="btnTabBerdua" onclick="switchTab('berdua')" class="flex-1 py-2.5 rounded-xl transition-all duration-300 relative z-10 hover:text-slate-700">Berdua</button>
+            </div>
+        </div>
+
+        <div class="bg-slate-50/50 min-h-[500px]">
+            <!-- ========================================== -->
+            <!-- TAB 1: REKAP HARIAN (Kalkulator)           -->
+            <!-- ========================================== -->
+            <div id="viewHarian" class="p-6 sm:p-8 block fade-in">
+                <form id="formHarian" class="space-y-6">
+                    <!-- Pemasukan -->
+                    <div class="relative">
+                        <label class="block text-xs font-bold text-blue-600 uppercase tracking-wider mb-2 flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" /></svg> Uang Masuk
+                        </label>
+                        <div class="flex gap-2 mb-3">
+                            <div class="relative w-full">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 font-semibold">Rp</span>
+                                <input type="number" id="nomPemasukan" placeholder="0" class="w-full pl-10 pr-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold bg-white shadow-sm transition-all">
+                            </div>
+                            <button type="button" id="btnTambahPemasukan" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-3.5 rounded-xl font-bold transition-colors shadow-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                            </button>
+                        </div>
+                        <ul id="listPemasukan" class="space-y-2 mb-2 max-h-32 overflow-y-auto empty:hidden"></ul>
+                        <input type="hidden" id="pemasukan_raw" name="pemasukan" value="0">
+                    </div>
+                    <!-- Modal Keluar -->
+                    <div class="relative">
+                        <label class="block text-xs font-bold text-red-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1V9a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586 3.707 5.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clip-rule="evenodd" /></svg> Modal Keluar
+                        </label>
+                        <div class="flex gap-2 mb-3">
+                            <div class="relative w-full">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 font-semibold">Rp</span>
+                                <input type="number" id="nomModal" placeholder="0" class="w-full pl-10 pr-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-500 outline-none text-sm font-semibold bg-white shadow-sm transition-all">
+                            </div>
+                            <button type="button" id="btnTambahModal" class="bg-red-500 text-white hover:bg-red-600 px-4 py-3.5 rounded-xl font-bold transition-colors shadow-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                            </button>
+                        </div>
+                        <ul id="listModal" class="space-y-2 mb-2 max-h-32 overflow-y-auto empty:hidden"></ul>
+                        <input type="hidden" id="modal_raw" name="modal" value="0">
+                    </div>
+                    <!-- Rekapitulasi -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col gap-3">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500 font-medium">Total Pemasukan</span>
+                            <span id="tampilTotalPemasukan" class="font-bold text-slate-800">Rp 0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-500 font-medium">Total Pengeluaran</span>
+                            <span id="tampilTotalModal" class="font-bold text-red-500">Rp 0</span>
+                        </div>
+                        <div class="border-t border-dashed border-slate-300 pt-3 flex justify-between items-center">
+                            <span class="text-slate-700 font-bold">Laba Bersih</span>
+                            <input type="hidden" id="bersih_raw" name="bersih" value="0">
+                            <span class="text-xl font-extrabold text-emerald-500" id="tampil_bersih">Rp 0</span>
+                        </div>
+                    </div>
+                    <button type="submit" id="btnSubmitHarian" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl transition shadow-xl shadow-slate-900/20 flex justify-center items-center gap-2">
+                        <span>Kirim Laporan Harian</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 2: INPUT SALDO BARU                    -->
+            <!-- ========================================== -->
+            <div id="viewInput" class="p-6 sm:p-8 hidden fade-in">
+                <div class="text-center mb-6">
+                    <h2 class="text-lg font-extrabold text-slate-800">Update Saldo Manual</h2>
+                    <p class="text-sm text-slate-500 mt-1">Sinkronisasi sisa saldo akhir platform Anda.</p>
+                </div>
+                <form id="formInputSaldo" class="space-y-4">
+                    <div class="space-y-3">
+                        <div class="relative">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Saldo Order Kuota</label>
+                            <span class="absolute bottom-3 left-4 text-slate-400 font-semibold">Rp</span>
+                            <input type="number" id="inputOrderKuota" required class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 outline-none font-bold bg-white text-slate-700 transition">
+                        </div>
+                        <div class="relative">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Saldo Bank BRI</label>
+                            <span class="absolute bottom-3 left-4 text-slate-400 font-semibold">Rp</span>
+                            <input type="number" id="inputBankBri" required class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none font-bold bg-white text-slate-700 transition">
+                        </div>
+                        <div class="relative">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Saldo Bank Seabank</label>
+                            <span class="absolute bottom-3 left-4 text-slate-400 font-semibold">Rp</span>
+                            <input type="number" id="inputBankSeabank" required class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-orange-500 outline-none font-bold bg-white text-slate-700 transition">
+                        </div>
+                        <div class="relative">
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Uang Tunai</label>
+                            <span class="absolute bottom-3 left-4 text-slate-400 font-semibold">Rp</span>
+                            <input type="number" id="inputTunai" required class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 outline-none font-bold bg-white text-slate-700 transition">
+                        </div>
+                    </div>
+                    <button type="submit" id="btnSubmitInput" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl transition shadow-xl shadow-indigo-600/20 mt-4">
+                        Simpan Perubahan
+                    </button>
+                </form>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 3: DATABASE AKUN                       -->
+            <!-- ========================================== -->
+            <div id="viewAkun" class="p-6 sm:p-8 hidden fade-in">
+                <div class="text-center mb-6">
+                    <h2 class="text-lg font-extrabold text-slate-800">Database Akun</h2>
+                    <p class="text-sm text-slate-500 mt-1">Simpan kredensial email & kode V2L ke Sheet.</p>
+                </div>
+                <form id="formAkun" class="space-y-4">
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Email Google</label>
+                            <input type="email" name="email" required placeholder="akun@gmail.com" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500 outline-none font-bold bg-white text-slate-700 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Password</label>
+                            <input type="password" name="password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500 outline-none font-bold bg-white text-slate-700 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Kode V2L</label>
+                            <input type="text" name="kodeV2L" required placeholder="Masukkan Kode V2L" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500 outline-none font-bold bg-white text-slate-700 transition">
+                        </div>
+                    </div>
+                    <button type="submit" id="btnSubmitAkun" class="w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 rounded-xl transition shadow-xl shadow-violet-600/20 mt-4">
+                        Simpan Akun
+                    </button>
+                </form>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 4: DASHBOARD DOMPET & PENGELUARAN      -->
+            <!-- ========================================== -->
+            <div id="viewDashboard" class="p-6 sm:p-8 hidden fade-in">
+                <!-- Kartu ATM (Total Saldo) -->
+                <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900 p-6 rounded-[1.5rem] shadow-xl text-white relative overflow-hidden mb-6">
+                    <div class="absolute top-[-30px] right-[-30px] w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                    <div class="flex justify-between items-start mb-6">
+                        <div>
+                            <p class="text-xs font-medium text-slate-300 uppercase tracking-widest mb-1">Total Aset Keseluruhan</p>
+                            <h2 class="text-3xl font-extrabold tracking-tight" id="txtTotal">Rp 0</h2>
+                        </div>
+                        <button onclick="muatDataSaldo()" class="bg-white/10 hover:bg-white/20 p-2 rounded-xl backdrop-blur-sm transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                        </button>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-10 h-6 bg-gradient-to-r from-amber-300 to-amber-500 rounded-md opacity-80"></div>
+                        <div class="w-10 h-6 bg-white/20 rounded-md"></div>
+                    </div>
+                </div>
+
+                <!-- Grid Kartu Kecil -->
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <p class="text-xs text-slate-400 font-semibold">Order Kuota</p>
+                        <p class="text-sm font-bold text-slate-800 mt-0.5" id="txtKuota">Rp 0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <p class="text-xs text-slate-400 font-semibold">Bank BRI</p>
+                        <p class="text-sm font-bold text-slate-800 mt-0.5" id="txtBri">Rp 0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <p class="text-xs text-slate-400 font-semibold">Bank Seabank</p>
+                        <p class="text-sm font-bold text-slate-800 mt-0.5" id="txtSeabank">Rp 0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <p class="text-xs text-slate-400 font-semibold">Uang Tunai</p>
+                        <p class="text-sm font-bold text-slate-800 mt-0.5" id="txtTunai">Rp 0</p>
+                    </div>
+                </div>
+
+                <!-- Form Pengeluaran Cepat -->
+                <div>
+                    <h3 class="text-sm font-extrabold text-slate-800 mb-4 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        Potong Saldo (Pengeluaran)
+                    </h3>
+                    <form id="formPengeluaran" class="space-y-4">
+                        <div class="relative">
+                            <select id="sumberDana" required class="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-500 outline-none font-semibold bg-white text-slate-600 appearance-none text-sm transition">
+                                <option value="" disabled selected>Pilih Sumber Dana</option>
+                                <option value="orderKuota">Saldo Order Kuota</option>
+                                <option value="bankBri">Saldo Bank BRI</option>
+                                <option value="bankSeabank">Saldo Bank Seabank</option>
+                                <option value="tunai">Uang Tunai</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="relative w-full">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 font-semibold">Rp</span>
+                                <input type="number" id="nominalKeluar" required placeholder="0" class="w-full pl-10 pr-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-500 outline-none font-bold bg-white text-sm transition">
+                            </div>
+                            <input type="text" id="keteranganKeluar" required placeholder="Keterangan..." class="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-red-500 outline-none font-medium bg-white text-sm transition">
+                        </div>
+                        <button type="submit" id="btnKeluar" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-4 rounded-xl transition shadow-xl shadow-red-500/20 mt-2">
+                            Proses Pemotongan
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- TAB 5: TABUNGAN BERDUA                     -->
+            <!-- ========================================== -->
+            <div id="viewBerdua" class="p-6 sm:p-8 hidden fade-in">
+                
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-lg font-extrabold text-slate-800">Tabungan Berdua</h2>
+                        <p class="text-sm text-slate-500 mt-1">Pencatat akumulasi dana bersama.</p>
+                    </div>
+                </div>
+
+                <!-- Kartu Total Saldo Tabungan -->
+                <div class="relative overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-emerald-800 to-emerald-950 text-white p-6 shadow-xl mb-6">
+                    <div class="pointer-events-none absolute -top-16 -right-16 w-48 h-48 rounded-full bg-emerald-500/20 blur-2xl"></div>
+                    <div class="relative z-10 flex flex-col gap-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-medium text-emerald-200 uppercase tracking-widest">Total Saldo Tabungan</span>
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/10 text-emerald-100 border border-white/10 backdrop-blur-sm">
+                                <span id="sync-status-dot-berdua" class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                                <span id="sync-status-text-berdua">Tersinkronisasi</span>
+                            </div>
+                        </div>
+                        <p id="total-balance-display" class="text-3xl font-extrabold tracking-tight">Rp 0</p>
+                        <div class="pt-3 border-t border-white/10 flex justify-between items-center">
+                            <span class="text-[11px] text-emerald-200 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                <span id="last-updated-display">Menarik data...</span>
+                            </span>
+                            <button id="btn-open-reset-modal" class="text-[11px] font-semibold bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg border border-white/10 transition">Reset Rekap</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aksi Transaksi -->
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-6">
+                    <h3 class="text-sm font-bold text-slate-800 mb-3">Catat Transaksi</h3>
+                    <div class="space-y-3">
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 font-bold text-slate-400">Rp</span>
+                            <input id="input-nominal-berdua" type="text" inputmode="numeric" autocomplete="off" placeholder="0" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-lg font-bold text-slate-800 transition">
+                        </div>
+                        <input id="input-keterangan-berdua" type="text" autocomplete="off" placeholder="Keterangan (opsional)..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-medium transition">
+                        <div class="flex gap-2">
+                            <button id="btn-add-money" type="button" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-md transition text-sm flex justify-center gap-1"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg> Tambah</button>
+                            <button id="btn-subtract-money" type="button" class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl shadow-md transition text-sm flex justify-center gap-1"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" /></svg> Kurangi</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Riwayat -->
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold text-slate-800">Riwayat</h3>
+                        <span id="history-count-badge" class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded-md text-slate-500">0 data</span>
+                    </div>
+                    <div id="history-list" class="divide-y divide-slate-100 max-h-60 overflow-y-auto pr-1"></div>
+                    <div id="history-empty" class="py-6 text-center">
+                        <p class="text-xs font-semibold text-slate-400">Belum ada riwayat transaksi.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL RESET TABUNGAN BERDUA                                           -->
+    <!-- ===================================================================== -->
+    <div id="modal-reset" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden p-6 relative fade-in">
+            <h3 class="text-lg font-bold text-slate-800 mb-1">Reset Saldo</h3>
+            <p class="text-xs text-slate-500 mb-4">Masukkan ulang total jumlah saldo yang baru.</p>
+            <form id="form-reset-rekap" class="space-y-4">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 font-bold text-slate-400">Rp</span>
+                    <input id="input-reset-nominal" type="text" inputmode="numeric" placeholder="0" class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 outline-none text-lg font-bold transition">
+                </div>
+                <input id="input-reset-note" type="text" placeholder="Catatan reset..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-500 outline-none text-sm font-medium transition">
+                <div class="flex gap-2 pt-2">
+                    <button type="button" data-close-modal="modal-reset" class="w-1/2 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">Batal</button>
+                    <button type="submit" class="w-1/2 py-3 rounded-xl font-bold text-white bg-amber-500 hover:bg-amber-600 shadow-md transition">Simpan Baru</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- LOGIKA JAVASCRIPT GLOBAL                                              -->
+    <!-- ===================================================================== -->
+    <script>
+        // ==========================================
+        // 1. PENGATURAN URL
+        // ==========================================
+        const URL_HARIAN = 'https://script.google.com/macros/s/AKfycbwUICoJyirCINQS0Q3-BK2EWJyoWpx3-oXbBu-OxqyL5sDXH58VwO-PI_hp4-Ulo4sL/exec';
+        const URL_SALDO = 'https://script.google.com/macros/s/AKfycbxTz7yXbFdCHkI1tM5GJSbnF2y3wq2HTtdh_mYicfvXlZxc5m0cMkKAZTuRQMrJfmRJ/exec';
+        const URL_AKUN = 'https://script.google.com/macros/s/AKfycbwHWZSOQadkvgXv_JniLR2w5QgDZcIgZNlr8gt9Sgp2yniLNjtdeQHTmSpRNLeHgk0/exec';
+        const URL_BERDUA = 'https://script.google.com/macros/s/AKfycbz1aC74H6gbIKCr7EtrXDDheNzIW0rdcGChW8sIkqeM5LyGMxD2RNvx6yyzlBFPP4GpWg/exec';
+
+        // ==========================================
+        // 2. NAVIGASI TAB
+        // ==========================================
+        function switchTab(tab) {
+            ['Harian', 'Input', 'Akun', 'Dashboard', 'Berdua'].forEach(t => {
+                const el = document.getElementById('view' + t);
+                const btn = document.getElementById('btnTab' + t);
+                if(tab.toLowerCase() === t.toLowerCase()) {
+                    el.classList.replace('hidden', 'block');
+                    btn.classList.add('bg-white', 'shadow-sm', 'text-blue-700');
+                    btn.classList.remove('hover:text-slate-700');
+                    if(tab === 'dashboard') muatDataSaldo(); 
+                } else {
+                    el.classList.replace('block', 'hidden');
+                    btn.classList.remove('bg-white', 'shadow-sm', 'text-blue-700');
+                    btn.classList.add('hover:text-slate-700');
+                }
+            });
+        }
+
+        const formatRupiah = (angka) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+        
+        function showToast(msg, iconType = 'info') {
+            Swal.fire({ toast: true, position: 'top-end', icon: iconType, title: msg, showConfirmButton: false, timer: 3000, timerProgressBar: true });
+        }
+
+        // ==========================================
+        // 3. TAB 1: REKAP HARIAN
+        // ==========================================
+        let daftarPemasukan = [], daftarModal = [], countPemasukan = 1, countModal = 1;
+        const renderList = (idList, arr, totalId, rawId) => {
+            const listEl = document.getElementById(idList); listEl.innerHTML = ''; let total = 0;
+            arr.forEach((item, index) => {
+                total += item.nominal;
+                const fn = idList === 'listPemasukan' ? `hapusPemasukan(${index})` : `hapusModal(${index})`;
+                const iconColor = idList === 'listPemasukan' ? 'text-blue-500 bg-blue-50' : 'text-red-500 bg-red-50';
+                listEl.innerHTML += `
+                    <li class="flex justify-between items-center p-3 rounded-xl bg-white border border-slate-100 shadow-sm fade-in">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full ${iconColor} flex items-center justify-center text-xs font-bold">${index+1}</div>
+                            <span class="text-sm font-semibold text-slate-700">${item.ket}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-bold text-slate-800">${formatRupiah(item.nominal)}</span>
+                            <button type="button" onclick="${fn}" class="text-slate-300 hover:text-red-500 p-1">✕</button>
+                        </div>
+                    </li>`;
+            });
+            document.getElementById(totalId).innerText = formatRupiah(total);
+            document.getElementById(rawId).value = total; hitungLaba();
+        };
+
+        const renderPemasukan = () => renderList('listPemasukan', daftarPemasukan, 'tampilTotalPemasukan', 'pemasukan_raw');
+        const renderModal = () => renderList('listModal', daftarModal, 'tampilTotalModal', 'modal_raw');
+
+        const tambahPemasukan = () => { const n = parseFloat(document.getElementById('nomPemasukan').value); if(n>0){ daftarPemasukan.push({ ket: `Pemasukan ${countPemasukan++}`, nominal: n }); document.getElementById('nomPemasukan').value = ''; renderPemasukan(); document.getElementById('nomPemasukan').focus(); }}
+        const tambahModal = () => { const n = parseFloat(document.getElementById('nomModal').value); if(n>0){ daftarModal.push({ ket: `Modal ${countModal++}`, nominal: n }); document.getElementById('nomModal').value = ''; renderModal(); document.getElementById('nomModal').focus(); }}
+
+        window.hapusPemasukan = (i) => { daftarPemasukan.splice(i, 1); renderPemasukan(); };
+        window.hapusModal = (i) => { daftarModal.splice(i, 1); renderModal(); };
+
+        document.getElementById('btnTambahPemasukan').addEventListener('click', tambahPemasukan);
+        document.getElementById('nomPemasukan').addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); tambahPemasukan(); }});
+        document.getElementById('btnTambahModal').addEventListener('click', tambahModal);
+        document.getElementById('nomModal').addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); tambahModal(); }});
+
+        const hitungLaba = () => {
+            const b = (parseFloat(document.getElementById('pemasukan_raw').value) || 0) - (parseFloat(document.getElementById('modal_raw').value) || 0);
+            document.getElementById('bersih_raw').value = b;
+            const el = document.getElementById('tampil_bersih'); el.innerText = formatRupiah(b);
+            el.className = b < 0 ? 'text-xl font-extrabold text-red-500' : 'text-xl font-extrabold text-emerald-500';
+        };
+
+        document.getElementById('formHarian').addEventListener('submit', e => {
+            e.preventDefault();
+            if(daftarPemasukan.length === 0 && daftarModal.length === 0) return showToast('Form masih kosong.', 'warning');
+            const btn = document.getElementById('btnSubmitHarian'); btn.innerHTML = 'Memproses...'; btn.disabled = true;
+            fetch(URL_HARIAN, { method: 'POST', body: new FormData(e.target) })
+                .then(() => {
+                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Laporan harian tersimpan.' });
+                    e.target.reset(); daftarPemasukan=[]; daftarModal=[]; countPemasukan=1; countModal=1; renderPemasukan(); renderModal();
+                    btn.innerHTML = 'Kirim Laporan Harian'; btn.disabled = false;
+                }).catch(() => { showToast('Gagal mengirim data.', 'error'); btn.innerHTML = 'Coba Lagi'; btn.disabled = false; });
+        });
+
+        // ==========================================
+        // 4. TAB 2: INPUT SALDO & TAB 3: AKUN & TAB 4: DOMPET
+        // ==========================================
+        document.getElementById('formInputSaldo').addEventListener('submit', e => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitInput'); btn.innerHTML = 'Menyimpan...'; btn.disabled = true;
+            let data = { orderKuota: document.getElementById("inputOrderKuota").value, bankBri: document.getElementById("inputBankBri").value, bankSeabank: document.getElementById("inputBankSeabank").value, tunai: document.getElementById("inputTunai").value };
+            fetch(URL_SALDO, { method: "POST", body: JSON.stringify(data), mode: "no-cors" })
+            .then(() => {
+                showToast('Saldo berhasil diupdate', 'success'); document.getElementById('formInputSaldo').reset();
+                btn.innerHTML = 'Simpan Perubahan'; btn.disabled = false;
+            }).catch(err => { showToast('Gagal koneksi', 'error'); btn.innerHTML = 'Coba Lagi'; btn.disabled = false; });
+        });
+
+        document.getElementById('formAkun').addEventListener('submit', e => {
+            e.preventDefault();
+            const btn = document.getElementById('btnSubmitAkun'); btn.innerHTML = 'Menyimpan...'; btn.disabled = true;
+            fetch(URL_AKUN, { method: 'POST', body: new FormData(e.target), mode: 'no-cors' })
+            .then(() => {
+                showToast('Akun berhasil disimipan', 'success'); e.target.reset();
+                btn.innerHTML = 'Simpan Akun'; btn.disabled = false;
+            }).catch(err => { showToast('Gagal koneksi', 'error'); btn.innerHTML = 'Coba Lagi'; btn.disabled = false; });
+        });
+
+        function muatDataSaldo() {
+            document.getElementById("txtTotal").innerText = '...';
+            fetch(URL_SALDO).then(res => res.json()).then(data => {
+                document.getElementById("txtKuota").innerText = formatRupiah(data.orderKuota);
+                document.getElementById("txtBri").innerText = formatRupiah(data.bankBri);
+                document.getElementById("txtSeabank").innerText = formatRupiah(data.bankSeabank);
+                document.getElementById("txtTunai").innerText = formatRupiah(data.tunai);
+                document.getElementById("txtTotal").innerText = formatRupiah(data.totalKeuangan);
+            }).catch(() => { document.getElementById("txtTotal").innerText = 'Error'; });
+        }
+
+        document.getElementById("formPengeluaran").addEventListener("submit", function(e) {
+            e.preventDefault();
+            let btn = document.getElementById("btnKeluar"); btn.innerHTML = 'Proses...'; btn.disabled = true;
+            let data = { action: "rekap_pengeluaran", sumber: document.getElementById("sumberDana").value, nominal: document.getElementById("nominalKeluar").value, keterangan: document.getElementById("keteranganKeluar").value };
+            fetch(URL_SALDO, { method: "POST", body: JSON.stringify(data), mode: "no-cors" })
+            .then(() => {
+                showToast('Saldo berhasil dipotong', 'success'); document.getElementById("formPengeluaran").reset();
+                btn.innerHTML = 'Proses Pemotongan'; btn.disabled = false; setTimeout(muatDataSaldo, 2000);
+            }).catch(() => { showToast('Gagal memotong saldo', 'error'); btn.innerHTML = 'Proses Pemotongan'; btn.disabled = false; });
+        });
+
+        // ==========================================
+        // 5. TAB 5: TABUNGAN BERDUA (Logika Sheet Auto)
+        // ==========================================
+        (function() {
+            const STORAGE_KEYS = { DATA: 'catattabung_data_v1' };
+            const state = { saldoAkhir: 0, waktuTerakhir: '', riwayat: [] };
+            let postQueue = Promise.resolve();
+            const maxD = 15;
+
+            const els = {
+                totalBalance: document.getElementById('total-balance-display'),
+                lastUpdated: document.getElementById('last-updated-display'),
+                syncDot: document.getElementById('sync-status-dot-berdua'),
+                syncText: document.getElementById('sync-status-text-berdua'),
+                btnOpenResetModal: document.getElementById('btn-open-reset-modal'),
+                inputNominal: document.getElementById('input-nominal-berdua'),
+                inputKeterangan: document.getElementById('input-keterangan-berdua'),
+                btnAddMoney: document.getElementById('btn-add-money'),
+                btnSubtractMoney: document.getElementById('btn-subtract-money'),
+                historyCount: document.getElementById('history-count-badge'),
+                historyList: document.getElementById('history-list'),
+                historyEmpty: document.getElementById('history-empty'),
+                modalReset: document.getElementById('modal-reset'),
+                formReset: document.getElementById('form-reset-rekap'),
+                inputResetNominal: document.getElementById('input-reset-nominal'),
+                inputResetNote: document.getElementById('input-reset-note')
+            };
+
+            function formatRibuan(val) {
+                const d = String(val||'').replace(/\D/g, '').slice(0, maxD);
+                if(!d) return '';
+                return d.replace(/^0+(?=\d)/, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+            function parseRibuan(val) {
+                const d = String(val||'').replace(/\D/g, '');
+                return d ? Number(d) : null;
+            }
+            function getTime() {
+                const now = new Date(), p = n => String(n).padStart(2, '0');
+                return `${now.getFullYear()}-${p(now.getMonth()+1)}-${p(now.getDate())} ${p(now.getHours())}:${p(now.getMinutes())}:${p(now.getSeconds())}`;
+            }
+
+            function loadData() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEYS.DATA);
+                    if(raw) {
+                        const p = JSON.parse(raw);
+                        state.saldoAkhir = Number(p.saldo_akhir)||0;
+                        state.waktuTerakhir = p.waktu_terakhir||'';
+                        state.riwayat = Array.isArray(p.riwayat) ? p.riwayat : [];
+                    }
+                } catch(e){}
+            }
+            function saveData() {
+                localStorage.setItem(STORAGE_KEYS.DATA, JSON.stringify({saldo_akhir: state.saldoAkhir, waktu_terakhir: state.waktuTerakhir, riwayat: state.riwayat}));
+            }
+
+            function updateSyncUI(status) {
+                if(status === 'syncing') {
+                    els.syncDot.className = 'w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse'; els.syncText.textContent = 'Menyinkronkan...';
+                } else if(status === 'synced') {
+                    els.syncDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400'; els.syncText.textContent = 'Tersinkronisasi';
+                } else {
+                    els.syncDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400'; els.syncText.textContent = 'Mode Lokal';
+                }
+            }
+
+            function renderTabungan() {
+                els.totalBalance.textContent = formatRupiah(state.saldoAkhir);
+                els.lastUpdated.textContent = state.waktuTerakhir || 'Belum ada data';
+                
+                els.historyCount.textContent = `${state.riwayat.length} data`;
+                if(state.riwayat.length === 0) {
+                    els.historyList.innerHTML = ''; els.historyEmpty.classList.remove('hidden'); return;
+                }
+                els.historyEmpty.classList.add('hidden');
+                let html = '';
+                state.riwayat.forEach(item => {
+                    const isAdd = item.jenis === 'TAMBAH';
+                    const isMin = item.jenis === 'KURANG';
+                    let badge = 'bg-slate-100 text-slate-600', txt = formatRupiah(item.nominal), clr = 'text-slate-700';
+                    if(isAdd){ badge = 'bg-emerald-100 text-emerald-700'; txt = '+ '+txt; clr = 'text-emerald-600'; }
+                    else if(isMin){ badge = 'bg-rose-100 text-rose-700'; txt = '- '+txt; clr = 'text-rose-600'; }
+                    else { badge = 'bg-amber-100 text-amber-700'; clr = 'text-amber-600'; }
+
+                    html += `<div class="py-3 flex justify-between items-center gap-2">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${badge}">${item.jenis}</span>
+                                <span class="text-[10px] text-slate-400">${item.waktu}</span>
+                            </div>
+                            <p class="text-xs font-semibold text-slate-700 truncate">${item.keterangan}</p>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <p class="text-sm font-bold ${clr}">${txt}</p>
+                            <p class="text-[10px] text-slate-500">Saldo: ${formatRupiah(item.saldo_akhir)}</p>
+                        </div>
+                    </div>`;
+                });
+                els.historyList.innerHTML = html;
+            }
+
+            function pushToSheet(entry) {
+                postQueue = postQueue.then(async () => {
+                    updateSyncUI('syncing');
+                    try {
+                        await fetch(URL_BERDUA, { method: 'POST', body: JSON.stringify(entry), mode: 'no-cors' });
+                        updateSyncUI('synced');
+                    } catch(e) {
+                        updateSyncUI('error'); showToast('Tersimpan lokal, gagal kirim ke Sheet', 'warning');
+                    }
+                });
+            }
+
+            async function pullFromSheet() {
+                updateSyncUI('syncing');
+                try {
+                    const res = await fetch(URL_BERDUA);
+                    const data = await res.json();
+                    if(data.status === 'ok') {
+                        state.saldoAkhir = Number(data.saldo_akhir)||0;
+                        state.waktuTerakhir = data.waktu_terakhir||'';
+                        state.riwayat = data.riwayat || [];
+                        saveData(); renderTabungan(); updateSyncUI('synced');
+                        return true;
+                    }
+                    throw new Error('Data tidak valid');
+                } catch(e) {
+                    updateSyncUI('error'); return false;
+                }
+            }
+
+            function doTransaction(jenis) {
+                const nom = parseRibuan(els.inputNominal.value);
+                if(!nom || nom <= 0) return showToast('Nominal tidak valid', 'error');
+                if(jenis === 'KURANG' && nom > state.saldoAkhir) return showToast('Saldo tidak cukup!', 'error');
+
+                const ket = els.inputKeterangan.value.trim() || (jenis==='TAMBAH'?'Tambah Tabungan':'Kurangi Tabungan');
+                const baru = jenis==='TAMBAH' ? state.saldoAkhir + nom : state.saldoAkhir - nom;
+                
+                const entry = { waktu: getTime(), jenis, nominal: nom, saldo_akhir: baru, keterangan: ket };
+                state.saldoAkhir = baru; state.waktuTerakhir = entry.waktu; state.riwayat.unshift(entry);
+                
+                saveData(); renderTabungan();
+                els.inputNominal.value = ''; els.inputKeterangan.value = '';
+                showToast(jenis==='TAMBAH'?'Berhasil ditambah':'Berhasil dikurangi', 'success');
+                pushToSheet(entry);
+            }
+
+            // Listeners Tabungan Berdua
+            els.inputNominal.addEventListener('input', e => e.target.value = formatRibuan(e.target.value));
+            els.inputResetNominal.addEventListener('input', e => e.target.value = formatRibuan(e.target.value));
+            els.btnAddMoney.addEventListener('click', () => doTransaction('TAMBAH'));
+            els.btnSubtractMoney.addEventListener('click', () => doTransaction('KURANG'));
+
+            function closeM(m) { m.classList.add('hidden'); }
+            document.querySelectorAll('[data-close-modal="modal-reset"]').forEach(b => {
+                b.addEventListener('click', () => closeM(els.modalReset));
+            });
+
+            els.btnOpenResetModal.addEventListener('click', () => { els.inputResetNominal.value=''; els.inputResetNote.value=''; els.modalReset.classList.remove('hidden'); });
+            els.formReset.addEventListener('submit', e => {
+                e.preventDefault();
+                const nom = parseRibuan(els.inputResetNominal.value);
+                if(nom===null || nom<0) return showToast('Nominal tidak valid', 'error');
+                const entry = { waktu: getTime(), jenis: 'RESET_REKAP', nominal: nom, saldo_akhir: nom, keterangan: els.inputResetNote.value||'Reset Saldo' };
+                state.saldoAkhir = nom; state.waktuTerakhir = entry.waktu; state.riwayat.unshift(entry);
+                saveData(); renderTabungan(); closeM(els.modalReset); showToast('Saldo berhasil direset', 'success');
+                pushToSheet(entry);
+            });
+
+            // Init Tabungan Berdua
+            loadData(); renderTabungan();
+            pullFromSheet(); // Auto sync on load
+
+        })();
+    </script>
+</body>
+</html>
